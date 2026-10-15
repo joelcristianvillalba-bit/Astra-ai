@@ -11,6 +11,7 @@
     "ws": "^8.13.0",
     "body-parser": "^1.20.2",
     "web-push": "^3.4.5",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "@supabase/supabase-js": "^2.3.0"
   }
 }
