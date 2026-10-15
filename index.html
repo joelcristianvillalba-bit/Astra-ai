@@ -1,477 +1,1080 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101114">
-<title>Astra AI</title>
-<style>
-:root{
-  --bg:#0e1015;
-  --bg-elev:#151922;
-  --panel:#1a1d28;
-  --panel-strong:#202532;
-  --text:#f4f7ff;
-  --muted:#a5adbf;
-  --accent:#9b7cff;
-  --accent-2:#4cc9f0;
-  --accent-3:#7ef0c2;
-  --border:#2d3343;
-  --shadow:rgba(14,16,21,0.42);
-  --success:#72f0b0;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:radial-gradient(circle at top, #171b2a 0%, var(--bg) 42%);color:var(--text);font-family:system-ui,Arial,sans-serif}
-button,textarea{font:inherit}
-a{text-decoration:none;color:inherit}
-button{cursor:pointer}
-.app{display:flex;min-height:100vh}
-aside{width:235px;background:rgba(17,20,27,0.9);border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:16px;backdrop-filter:blur(18px)}
-.logo{font-size:25px;font-weight:800;letter-spacing:-1px;padding:5px}
-.logo span{color:var(--accent)}
-.new-chat,.nav-button{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:#1d2231;color:var(--text);text-align:left;transition:all .2s ease}
-.nav-button{background:transparent;border-color:transparent;color:var(--muted);margin-top:5px}
-.nav-button:hover,.new-chat:hover{background:#292f3f;border-color:var(--border);transform:translateY(-1px)}
-.sidebar-bottom{margin-top:auto;color:var(--muted);font-size:12px;line-height:1.6;padding:8px}
-main{flex:1;min-width:0;min-height:100vh;display:flex;flex-direction:column}
-header{height:62px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(9,11,15,.42);backdrop-filter:blur(10px)}
-.model{font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--border);padding:8px 12px;border-radius:20px}
-.content{width:100%;max-width:980px;margin:auto;padding:28px 20px 16px;flex:1;display:flex;flex-direction:column}
-.welcome{text-align:center;margin:auto 0 18px}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid rgba(155,124,255,.35);background:rgba(155,124,255,.08);color:#ddd2ff;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-.orb{width:72px;height:72px;margin:18px auto 18px;border-radius:24px;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,#8b5cf6,#3b82f6 55%, #4cc9f0);box-shadow:0 0 45px rgba(155,124,255,.4)}
-h1{font-size:clamp(28px,5vw,46px);margin:0 0 12px;letter-spacing:-1.3px;line-height:1.05}
-.subtitle{color:var(--muted);line-height:1.7;max-width:620px;margin:auto;font-size:1.05rem}
-.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:26px 0}
-.suggestion{text-align:left;padding:15px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));border:1px solid var(--border);color:var(--text);min-height:95px;transition:all .2s ease}
-.suggestion:hover{border-color:rgba(155,124,255,.9);box-shadow:0 15px 30px rgba(155,124,255,.08);transform:translateY(-2px)}
-.suggestion strong{display:block;margin-bottom:7px}
-.suggestion small{color:var(--muted);line-height:1.5}
-.plans{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:16px;margin:18px 0 12px}
-.plan{background:linear-gradient(180deg, rgba(20,24,33,.95), rgba(19,22,31,.9));border:1px solid var(--border);border-radius:20px;padding:20px;position:relative;overflow:hidden;box-shadow:0 18px 40px var(--shadow)}
-.plan.featured{border-color:rgba(155,124,255,.75);box-shadow:0 18px 40px rgba(155,124,255,.14)}
-.plan .tag{position:absolute;top:14px;right:14px;padding:6px 10px;border-radius:999px;background:rgba(126,240,194,.12);color:var(--success);border:1px solid rgba(126,240,194,.3);font-size:11px;font-weight:700}
-.plan h3{margin:18px 0 8px;font-size:1.2rem}
-.plan .price{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
-.plan .price strong{font-size:2rem;letter-spacing:-.06em}
-.plan .price span{color:var(--muted)}
-.plan p{margin:0 0 18px;color:var(--muted);line-height:1.6}
-.plan ul{list-style:none;padding:0;margin:0 0 18px;display:grid;gap:10px;color:#e6ebf7}
-.plan li{display:flex;align-items:flex-start;gap:8px;color:var(--muted)}
-.plan li::before{content:"✓";color:var(--accent-3);font-weight:800;display:inline-block;margin-top:-1px}
-.plan .cta{width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(155,124,255,.7);background:rgba(155,124,255,.12);color:var(--text);font-weight:700}
-.plan.featured .cta{background:linear-gradient(135deg, var(--accent), #6db7ff);color:#130e1f;border:none}
-#messages{display:flex;flex-direction:column;gap:16px;margin-bottom:18px}
-.message{padding:14px 16px;border-radius:15px;line-height:1.65;overflow-wrap:anywhere;white-space:pre-wrap}
-.user{align-self:flex-end;max-width:90%;background:#2d2346;border:1px solid #564b6f}
-.assistant{background:var(--panel);border:1px solid var(--border)}
-.composer{border:1px solid #41424d;background:rgba(26,29,40,.9);border-radius:18px;padding:12px;box-shadow:0 18px 38px rgba(0,0,0,.18)}
-textarea{display:block;width:100%;resize:vertical;min-height:55px;max-height:180px;background:transparent;border:0;outline:0;color:var(--text);padding:8px;font-size:16px}
-textarea::placeholder{color:#858795}
-.composer-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:6px}
-.tools{display:flex;flex-wrap:wrap;gap:7px}
-.tool{background:transparent;border:1px solid var(--border);border-radius:9px;padding:7px 9px;color:var(--muted);font-size:12px}
-.send{border:0;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6aa9ff);color:#171321;padding:10px 16px;font-weight:800;box-shadow:0 10px 24px rgba(155,124,255,.35)}
-.notice{text-align:center;color:#777987;font-size:11px;line-height:1.5;padding-top:12px}
-/* New competitions / favorites styles */
-.competitions{display:flex;gap:18px;margin-top:18px;align-items:flex-start}
-.comps-list{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));border:1px solid var(--border);border-radius:14px;padding:14px}
-.comps-list h4{margin:0 0 10px}
-.table{width:100%;border-collapse:collapse}
-.table th,.table td{padding:8px 10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,.03);font-size:14px;color:var(--muted)}
-.teams-panel{width:340px;min-width:260px;background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border:1px solid var(--border);border-radius:14px;padding:14px}
-.teams-panel h4{margin:0 0 10px}
-.team-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;margin-bottom:8px;background:transparent}
-.team-item .fav{background:transparent;border:1px solid var(--border);padding:6px 8px;border-radius:8px;color:var(--muted)}
-.team-item .fav.active{background:linear-gradient(135deg,var(--accent),#6aa9ff);color:#0c0920;border:none}
-.live-feed{margin-top:12px;max-height:220px;overflow:auto;padding:8px;border-radius:8px;background:rgba(0,0,0,0.06)}
-.event{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02);font-size:14px}
-.event .time{color:var(--muted);font-size:12px;margin-bottom:6px}
-.card.red{color:#ff6b6b;font-weight:700}
-.card.yellow{color:#ffd166;font-weight:700}
-.scorer{color:var(--accent-3);font-weight:700}
-@media(max-width:900px){
-  .plans{grid-template-columns:1fr}
-  .competitions{flex-direction:column}
-  .teams-panel{width:100%}
-}
-@media(max-width:650px){
-  aside{display:none}
-  header{padding:0 14px;height:58px}.content{padding:24px 13px 12px}.suggestions{gap:8px}.suggestion{padding:11px;min-height:100px}.composer-bottom{align-items:flex-start;flex-direction:column}.send{width:100%}
-}
-@media(max-width:370px){.suggestions{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>Astra AI | Live Sports</title>
+  <style>
+    :root {
+      --bg: #06121f;
+      --bg-2: #0f1a2b;
+      --surface: rgba(15, 24, 38, 0.9);
+      --surface-strong: rgba(18, 28, 44, 0.96);
+      --surface-soft: rgba(22, 34, 52, 0.9);
+      --panel: rgba(16, 25, 39, 0.88);
+      --text: #edf4ff;
+      --muted: #9aaec9;
+      --line: rgba(151, 173, 213, 0.18);
+      --accent: #7c6ef7;
+      --accent-2: #53d4ff;
+      --accent-3: #7ef0c2;
+      --gold: #ffcf5a;
+      --red: #ff6b7d;
+      --yellow: #ffd166;
+      --shadow: rgba(8, 14, 24, 0.62);
+      --chip: rgba(124, 110, 247, 0.12);
+      --success: #81f7b5;
+      --danger: #ff7d87;
+      --warning: #ffd166;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124,110,247,.18), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(83,212,255,.15), transparent 18%),
+        linear-gradient(180deg, #07111c 0%, #0b1421 100%);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      max-width: 1440px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 22px 22px 34px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(8, 18, 30, 0.72);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 40px rgba(0,0,0,.16);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 28px rgba(124,110,247,.35);
+      font-size: 18px;
+    }
+
+    .brand small {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-left: 6px;
+      opacity: .8;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ghost-btn, .primary-btn, .chip {
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      color: var(--text);
+      padding: 10px 14px;
+      font-weight: 700;
+      transition: .2s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0a0f18;
+      border-color: transparent;
+      box-shadow: 0 18px 34px rgba(124,110,247,.32);
+    }
+
+    .ghost-btn:hover, .primary-btn:hover, .chip:hover { transform: translateY(-1px); }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr) 350px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(19,31,47,.96), rgba(10,18,28,.92));
+      box-shadow: 0 20px 50px var(--shadow);
+      overflow: hidden;
+    }
+
+    .sidebar {
+      padding: 18px 16px;
+    }
+
+    .nav-section {
+      margin-top: 18px;
+    }
+
+    .nav-title {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 11px;
+      padding: 0 8px 8px;
+    }
+
+    .nav-item {
+      width: 100%;
+      padding: 12px 12px;
+      margin: 6px 0;
+      border-radius: 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      text-align: left;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(124,110,247,.12), rgba(83,212,255,.05));
+      border-color: rgba(124,110,247,.25);
+      color: var(--text);
+    }
+
+    .bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 18px rgba(83,212,255,.8);
+      flex-shrink: 0;
+    }
+
+    .league-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .league-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid transparent;
+      color: var(--muted);
+    }
+
+    .league-list li strong {
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .league-list li .pill {
+      font-size: 10px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: rgba(126, 240, 194, .08);
+      border: 1px solid rgba(126, 240, 194, .2);
+      color: var(--success);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .content {
+      padding: 18px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .hero-card, .mini-card {
+      position: relative;
+      padding: 18px 18px 14px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(16, 25, 39, .94), rgba(23, 36, 50, .92));
+      overflow: hidden;
+    }
+
+    .hero-card::before, .mini-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, rgba(124,110,247,.18), transparent 38%, rgba(83,212,255,.12));
+      pointer-events: none;
+    }
+
+    .hero-head {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(83,212,255,.24);
+      background: rgba(83,212,255,.08);
+      color: #b9ebff;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-weight: 800;
+    }
+
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 18px rgba(255,107,125,.8);
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: .7; }
+    }
+
+    .match-summary {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .team-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .crest {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 20px;
+      color: white;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 0 20px rgba(255,255,255,.08);
+    }
+
+    .crest.red { background: linear-gradient(135deg, #ff5f6d, #ffc371); }
+    .crest.blue { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .crest.gold { background: linear-gradient(135deg, #f7b733, #fc4a1a); }
+    .crest.green { background: linear-gradient(135deg, #38ef7d, #11998e); }
+
+    .team-meta strong {
+      display: block;
+      font-size: 1.1rem;
+      letter-spacing: -0.04em;
+    }
+
+    .team-meta span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .scorebox {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--line);
+    }
+
+    .scorebox strong {
+      font-size: clamp(2rem, 3vw, 3rem);
+      letter-spacing: -0.08em;
+      line-height: 1;
+    }
+
+    .scorebox span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+    }
+
+    .mini-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .mini-stat {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mini-stat:last-child { border-bottom: 0; }
+    .mini-stat small { color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-size: 10px; }
+    .mini-stat strong { font-size: 1.5rem; }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0 12px;
+    }
+
+    .section-header h3 {
+      margin: 0;
+      font-size: 1.02rem;
+      letter-spacing: -0.03em;
+    }
+
+    .section-header .link {
+      color: var(--accent-2);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .cards-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .match-card {
+      padding: 14px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(20,30,42,.9), rgba(13,20,31,.88));
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 26px rgba(0,0,0,.12);
+    }
+
+    .match-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .match-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      color: var(--success);
+      background: rgba(126,240,194,.08);
+      border: 1px solid rgba(126,240,194,.18);
+      border-radius: 999px;
+      padding: 5px 9px;
+    }
+
+    .teams-score {
+      display: grid;
+      gap: 12px;
+    }
+
+    .team-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .team-line .team-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tiny-crest {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: white;
+    }
+    .tiny-crest.red { background: linear-gradient(135deg, #ff5f6d, #ffc371); }
+    .tiny-crest.blue { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .tiny-crest.gold { background: linear-gradient(135deg, #f7b733, #fc4a1a); }
+    .tiny-crest.green { background: linear-gradient(135deg, #38ef7d, #11998e); }
+    .tiny-crest.purple { background: linear-gradient(135deg, #8e7dff, #6ab7ff); }
+
+    .score {
+      font-size: 1.4rem;
+      letter-spacing: -0.05em;
+      font-weight: 800;
+    }
+
+    .match-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .fav-flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(124,110,247,.09);
+      border: 1px solid rgba(124,110,247,.2);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .tracker {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .table-box, .favorite-box {
+      padding: 14px;
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table-box th, .table-box td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-box th {
+      color: #dfe9f7;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .table-box tbody tr:last-child td { border-bottom: 0; }
+
+    .favorite-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .favorite-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid var(--line);
+    }
+
+    .favorite-item .left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      font-weight: 700;
+    }
+
+    .favorite-item .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 72px;
+      border-radius: 10px;
+      padding: 7px 8px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .favorite-item .tag.active {
+      background: linear-gradient(135deg, rgba(124,110,247,.18), rgba(83,212,255,.10));
+      border-color: rgba(124,110,247,.2);
+      color: var(--text);
+    }
+
+    .feed {
+      padding: 14px;
+    }
+
+    .feed-list {
+      display: grid;
+      gap: 10px;
+      max-height: 350px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .feed-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .feed-time {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      margin-bottom: 8px;
+    }
+
+    .event-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .event-tag.goal { background: rgba(126,240,194,.08); color: var(--success); border: 1px solid rgba(126,240,194,.18); }
+    .event-tag.yellow { background: rgba(255,209,102,.08); color: var(--yellow); border: 1px solid rgba(255,209,102,.18); }
+    .event-tag.red { background: rgba(255,107,125,.08); color: var(--red); border: 1px solid rgba(255,107,125,.18); }
+    .event-tag.kickoff { background: rgba(83,212,255,.08); color: var(--accent-2); border: 1px solid rgba(83,212,255,.18); }
+
+    .feed-players {
+      font-weight: 700;
+      margin-top: 6px;
+      color: var(--text);
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 16px;
+      opacity: .9;
+    }
+
+    .muted { color: var(--muted); }
+
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: 240px minmax(0, 1fr);
+      }
+      .right-rail { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+      .cards-row { grid-template-columns: 1fr; }
+      .tracker { grid-template-columns: 1fr; }
+      .app { padding: 16px; }
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-  <aside>
-    <div class="logo">✦ Astra<span> AI</span></div>
-    <button class="new-chat" id="newChat">＋ Nuevo chat</button>
-    <div>
-      <button class="nav-button" data-prompt="Ayudame a programar una aplicación.">⌘ Programación</button>
-      <button class="nav-button" data-prompt="Ayudame a crear una página web desde cero.">▧ Desarrollo web</button>
-      <button class="nav-button" data-prompt="Ayudame a analizar un archivo.">▤ Archivos</button>
-      <button class="nav-button" data-prompt="Ayudame a crear una imagen.">◉ Imágenes</button>
-    </div>
-    <div class="sidebar-bottom">Astra AI · Versión inicial<br>Interfaz experimental</div>
-  </aside>
-  <main>
-    <header>
-      <div class="logo" style="font-size:21px">✦ Astra<span> AI</span></div>
-      <div class="model">Asistente IA ▾</div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">✦</div>
+        <div>
+          Astra <small>AI</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="chip" type="button">Ligas</button>
+        <button class="chip" type="button">Copas</button>
+        <button class="primary-btn" type="button" id="notifyPermission">Activar notificaciones</button>
+      </div>
     </header>
-    <section class="content">
-      <div class="welcome" id="welcome">
-        <div class="hero-badge">IA para crear y iterar rápido</div>
-        <div class="orb">✦</div>
-        <h1>¿Qué vamos a crear hoy?</h1>
-        <p class="subtitle">Tu espacio para programar, aprender, desarrollar páginas web y convertir tus ideas en proyectos con velocidad y claridad.</p>
 
-        <div class="plans" aria-label="Planes Astra AI">
-          <article class="plan">
-            <div class="tag">Starter</div>
-            <h3>Starter</h3>
-            <div class="price"><strong>$0</strong><span>/mes</span></div>
-            <p>Ideal para probar la plataforma y crear tus primeros prototipos.</p>
-            <ul>
-              <li>3 chats por día</li>
-              <li>Generación básica</li>
-              <li>Acceso a plantillas</li>
-            </ul>
-            <button class="cta" type="button">Probar gratis</button>
-          </article>
-
-          <article class="plan featured">
-            <div class="tag">Más popular</div>
-            <h3>Pro</h3>
-            <div class="price"><strong>$19</strong><span>/mes</span></div>
-            <p>Para usuarios que quieren trabajar de forma continua con más potencia.</p>
-            <ul>
-              <li>Acceso completo a IA</li>
-              <li>Generación de archivos</li>
-              <li>Soporte prioritario</li>
-            </ul>
-            <button class="cta" type="button">Elegir Pro</button>
-          </article>
-
-          <article class="plan">
-            <div class="tag">Team</div>
-            <h3>Business</h3>
-            <div class="price"><strong>$49</strong><span>/mes</span></div>
-            <p>Para equipos que necesitan colaboración y automatizaciones en producción.</p>
-            <ul>
-              <li>Espacios compartidos</li>
-              <li>Historial avanzado</li>
-              <li>Integraciones y roles</li>
-            </ul>
-            <button class="cta" type="button">Consultar plan</button>
-          </article>
+    <div class="main-grid">
+      <aside class="panel sidebar">
+        <div class="brand" style="padding: 4px 8px 10px;">
+          <div class="brand-mark">⚽</div>
+          <div>Live Hub</div>
         </div>
 
-        <div class="competitions">
-          <div class="comps-list" id="compsList">
-            <h4>Ligas y Copas</h4>
-            <table class="table" id="competitionsTable">
+        <div class="nav-section">
+          <div class="nav-title">Menú</div>
+          <button class="nav-item active" type="button"><span class="bullet"></span>Inicio</button>
+          <button class="nav-item" type="button"><span class="bullet" style="background: var(--gold);"></span>Partidos</button>
+          <button class="nav-item" type="button"><span class="bullet" style="background: var(--accent);"></span>Favoritos</button>
+          <button class="nav-item" type="button"><span class="bullet" style="background: var(--accent-3);"></span>Alertas</button>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-title">Ligas</div>
+          <ul class="league-list">
+            <li><strong>Premier</strong><span class="pill">Live</span></li>
+            <li><strong>LaLiga</strong><span class="pill">2</span></li>
+            <li><strong>Serie A</strong><span class="pill">4</span></li>
+            <li><strong>Copa</strong><span class="pill">1</span></li>
+          </ul>
+        </div>
+      </aside>
+
+      <main class="panel content">
+        <section class="hero">
+          <div class="hero-card">
+            <div class="hero-head">
+              <span class="eyebrow"><span class="live-dot"></span> En directo</span>
+              <button class="ghost-btn" type="button">Min 72'</button>
+            </div>
+
+            <div class="match-summary">
+              <div class="team-box">
+                <div class="crest red">R</div>
+                <div class="team-meta">
+                  <strong>River</strong>
+                  <span>Local</span>
+                </div>
+              </div>
+
+              <div class="scorebox">
+                <strong>2</strong>
+                <span>:</span>
+                <strong>1</strong>
+              </div>
+
+              <div class="team-box" style="justify-content:flex-end; text-align:right;">
+                <div class="team-meta">
+                  <strong>Boca</strong>
+                  <span>Visitante</span>
+                </div>
+                <div class="crest blue">B</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mini-card">
+            <div class="section-header" style="margin:0 0 8px;">
+              <h3>Resumen</h3>
+              <span class="link">Hoy</span>
+            </div>
+            <div class="mini-stat">
+              <div>
+                <small>Goles</small>
+                <div class="muted">3 anotaciones</div>
+              </div>
+              <strong>03</strong>
+            </div>
+            <div class="mini-stat">
+              <div>
+                <small>Tarjetas</small>
+                <div class="muted">3 total</div>
+              </div>
+              <strong>03</strong>
+            </div>
+            <div class="mini-stat">
+              <div>
+                <small>Porteros</small>
+                <div class="muted">1 atajada clave</div>
+              </div>
+              <strong>01</strong>
+            </div>
+          </div>
+        </section>
+
+        <div class="section-header">
+          <h3>Partidos de hoy</h3>
+          <span class="link">Ver todo</span>
+        </div>
+
+        <section class="cards-row">
+          <article class="match-card">
+            <div class="match-top">
+              <span>Premier League</span>
+              <span class="match-status">LIVE</span>
+            </div>
+            <div class="teams-score">
+              <div class="team-line">
+                <div class="team-name">
+                  <div class="tiny-crest red">R</div>
+                  <span>River</span>
+                </div>
+                <span class="score">2</span>
+              </div>
+              <div class="team-line">
+                <div class="team-name">
+                  <div class="tiny-crest blue">B</div>
+                  <span>Boca</span>
+                </div>
+                <span class="score">1</span>
+              </div>
+            </div>
+            <div class="match-meta">
+              <span>72' · Superclásico</span>
+              <span class="fav-flag">★ 4.8</span>
+            </div>
+          </article>
+
+          <article class="match-card">
+            <div class="match-top">
+              <span>Champions</span>
+              <span class="match-status">LIVE</span>
+            </div>
+            <div class="teams-score">
+              <div class="team-line">
+                <div class="team-name">
+                  <div class="tiny-crest gold">M</div>
+                  <span>Madrid</span>
+                </div>
+                <span class="score">1</span>
+              </div>
+              <div class="team-line">
+                <div class="team-name">
+                  <div class="tiny-crest green">B</div>
+                  <span>Barça</span>
+                </div>
+                <span class="score">1</span>
+              </div>
+            </div>
+            <div class="match-meta">
+              <span>65' · Clásico</span>
+              <span class="fav-flag">★ 4.7</span>
+            </div>
+          </article>
+
+          <article class="match-card">
+            <div class="match-top">
+              <span>Copa</span>
+              <span class="match-status" style="color: var(--gold); background: rgba(255,207,90,.08); border-color: rgba(255,207,90,.18);">PRÓX.</span>
+            </div>
+            <div class="teams-score">
+              <div class="team-line">
+                <div class="team-name">
+                  <div class="tiny-crest purple">E</div>
+                  <span>Estudiantes</span>
+                </div>
+                <span class="score">vs</span>
+              </div>
+              <div class="team-line">
+                <div class="team-name">
+                  <div class="tiny-crest green">V</div>
+                  <span>Vélez</span>
+                </div>
+                <span class="score">-</span>
+              </div>
+            </div>
+            <div class="match-meta">
+              <span>19:00 hs</span>
+              <span class="fav-flag">★ 5.0</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="tracker">
+          <div class="panel table-box">
+            <div class="section-header" style="margin-top:0;">
+              <h3>Ligas y copas</h3>
+              <span class="link">Actualizar</span>
+            </div>
+            <table id="competitionsTable">
               <thead>
-                <tr><th>Competición</th><th>Tipo</th><th>Próximo</th></tr>
+                <tr>
+                  <th>Competición</th>
+                  <th>Tipo</th>
+                  <th>Próximo</th>
+                </tr>
               </thead>
               <tbody></tbody>
             </table>
-            <p style="margin-top:10px;color:var(--muted);font-size:13px">Seleccioná una competición para ver partidos y marcar equipos como favoritos.</p>
           </div>
 
-          <aside class="teams-panel">
-            <h4>Mis equipos</h4>
-            <div id="teamsList"></div>
-            <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
-              <button id="notifyPermission" class="cta" type="button" style="padding:8px 10px;">Activar notificaciones</button>
-              <button id="simulate" class="tool" type="button">Simular partido</button>
+          <div class="panel favorite-box">
+            <div class="section-header" style="margin-top:0;">
+              <h3>Equipos favoritos</h3>
+              <span class="link">Mi lista</span>
             </div>
-            <div class="live-feed" id="liveFeed" aria-live="polite"></div>
-          </aside>
-        </div>
-
-        <div class="suggestions">
-          <button class="suggestion" data-prompt="Creá el código de una página web moderna y explicame cómo publicarla."><strong>⌘ Programar</strong><small>Escribí código y desarrollá proyectos.</small></button>
-          <button class="suggestion" data-prompt="Ayudame a diseñar y construir una página web desde cero."><strong>▧ Crear una web</strong><small>Diseñá sitios web paso a paso.</small></button>
-          <button class="suggestion" data-prompt="Explicame cómo resolver un problema paso a paso."><strong>✧ Aprender</strong><small>Entendé temas complejos fácilmente.</small></button>
-          <button class="suggestion" data-prompt="Dame ideas para un proyecto digital gratuito."><strong>◉ Crear ideas</strong><small>Explorá ideas para nuevos proyectos.</small></button>
-        </div>
-      </div>
-
-      <div id="messages" aria-live="polite"></div>
-
-      <form class="composer" id="chatForm">
-        <textarea id="prompt" placeholder="Preguntale algo a Astra AI..." required></textarea>
-        <div class="composer-bottom">
-          <div class="tools">
-            <button class="tool" type="button" id="fileButton">＋ Archivo</button>
-            <button class="tool" type="button" data-feature="web">⌕ Web</button>
-            <button class="tool" type="button" data-feature="images">▧ Imágenes</button>
+            <div class="favorite-list" id="teamsList"></div>
+            <button class="primary-btn" type="button" id="simulate" style="width:100%; margin-top:14px;">Simular partido</button>
           </div>
-          <button class="send" id="sendButton" type="submit">Enviar ↑</button>
+        </section>
+
+        <section class="panel feed">
+          <div class="section-header" style="margin-top:0;">
+            <h3>Live Feed</h3>
+            <span class="link">Eventos</span>
+          </div>
+          <div class="feed-list" id="liveFeed" aria-live="polite"></div>
+        </section>
+
+        <div class="footer-note">Astra AI · Panel de partidos premium</div>
+      </main>
+
+      <aside class="panel right-rail" style="padding: 18px 16px;">
+        <div class="section-header" style="margin-top:0;">
+          <h3>Mis equipos</h3>
+          <span class="link" id="favoritesCount">0</span>
         </div>
-        <input id="fileInput" type="file" hidden>
-      </form>
-      <p class="notice">Astra AI está en desarrollo. Para notificaciones reales y eventos en vivo, conectá una API de partidos o WebSocket en el servidor.</p>
-    </section>
-  </main>
-</div>
-<script>
-// --- Chat UI (unchanged) ---
-const form=document.getElementById("chatForm");
-const promptBox=document.getElementById("prompt");
-const messages=document.getElementById("messages");
-const welcome=document.getElementById("welcome");
-const sendButton=document.getElementById("sendButton");
 
-function addMessage(text,role){
-  const el=document.createElement("div");
-  el.className="message "+role;
-  el.textContent=text;
-  messages.appendChild(el);
-  return el;
-}
-function ask(text){
-  promptBox.value=text;
-  promptBox.focus();
-}
-document.querySelectorAll("[data-prompt]").forEach(button=>{
-  button.addEventListener("click",()=>ask(button.dataset.prompt));
-});
-document.getElementById("newChat").addEventListener("click",()=>{
-  messages.replaceChildren();
-  promptBox.value="";
-  welcome.style.display="";
-  promptBox.focus();
-});
-// --- File chooser ---
-document.getElementById("fileButton").addEventListener("click",()=>{
-  document.getElementById("fileInput").click();
-});
-document.getElementById("fileInput").addEventListener("change",event=>{
-  const file=event.target.files[0];
-  if(file)addMessage("Archivo seleccionado: "+file.name+"\nLa lectura de archivos se conectará en una próxima versión.","assistant");
-});
-document.querySelectorAll("[data-feature]").forEach(button=>{
-  button.addEventListener("click",()=>{
-   const feature=button.dataset.feature;
-   addMessage(feature==="web"?"La búsqueda web todavía no está conectada.":"La generación de imágenes todavía no está conectada.","assistant");
-  });
-});
-form.addEventListener("submit",async event=>{
-  event.preventDefault();
-  const text=promptBox.value.trim();
-  if(!text)return;
-  welcome.style.display="none";
-  addMessage(text,"user");
-  promptBox.value="";
-  sendButton.disabled=true;
-  const reply=addMessage("Astra AI todavía no tiene un modelo conectado. Primero publicaremos esta página y después conectaremos un modelo de IA gratuito mediante un servidor seguro.","assistant");
-  sendButton.disabled=false;
-  promptBox.focus();
-  reply.scrollIntoView({behavior:"smooth", block:"nearest"});
-});
+        <div class="favorite-list" id="favoritesSidebar"></div>
 
-// --- Competitions / Teams / Notifications (new) ---
-const competitions = [
-  {id:1,name:'Liga Nacional',type:'Liga',next:'2026-10-20 19:00',matches:[
-    {id:101,home:'River Plate',away:'Boca Juniors',time:'2026-10-20 19:00'},
-    {id:102,home:'Racing',away:'Independiente',time:'2026-10-21 16:00'}
-  ]},
-  {id:2,name:'Copa Local',type:'Copa',next:'2026-11-02 18:00',matches:[
-    {id:201,home:'Estudiantes',away:'Velez',time:'2026-11-02 18:00'}
-  ]}
-];
+        <div class="section-header" style="margin-top:18px;">
+          <h3>Mi calendario</h3>
+          <span class="link">Hoy</span>
+        </div>
 
-const teams = Array.from(new Set(competitions.flatMap(c=>c.matches.flatMap(m=>[m.home,m.away]))));
+        <div class="feed-list" style="max-height:none;">
+          <div class="feed-item">
+            <div class="feed-time">18:00</div>
+            <div class="event-tag kickoff">Partido</div>
+            <div>River vs Boca</div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-time">19:30</div>
+            <div class="event-tag kickoff">Partido</div>
+            <div>Madrid vs Barça</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
 
-const favoritesKey = 'astra_favorites_v1';
-function loadFavorites(){
-  try{const raw=localStorage.getItem(favoritesKey);return raw?JSON.parse(raw):[];}catch(e){return[]}
-}
-function saveFavorites(list){localStorage.setItem(favoritesKey,JSON.stringify(list));}
-let favorites = loadFavorites();
+  <script>
+    const competitions = [
+      { id: 1, name: 'Premier League', type: 'Liga', next: 'Hoy 19:30' },
+      { id: 2, name: 'LaLiga', type: 'Liga', next: 'Hoy 20:00' },
+      { id: 3, name: 'Copa Argentina', type: 'Copa', next: 'Mañana 18:00' },
+      { id: 4, name: 'Champions', type: 'Europa', next: 'Hoy 21:00' }
+    ];
 
-const compsTableBody = document.querySelector('#competitionsTable tbody');
-const teamsList = document.getElementById('teamsList');
-const liveFeed = document.getElementById('liveFeed');
+    const teams = [
+      'River Plate', 'Boca Juniors', 'Real Madrid', 'Barcelona', 'Estudiantes', 'Vélez', 'Racing', 'Independiente'
+    ];
 
-function renderCompetitions(){
-  compsTableBody.innerHTML='';
-  competitions.forEach(c=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td><button class="tool" data-id="${c.id}" style="background:transparent;border:0;color:var(--accent);cursor:pointer">${c.name}</button></td><td>${c.type}</td><td>${c.next}</td>`;
-    compsTableBody.appendChild(tr);
-  });
-  // add click handlers
-  document.querySelectorAll('#competitionsTable button').forEach(btn=>{
-    btn.addEventListener('click',()=>showMatchesForCompetition(Number(btn.dataset.id)));
-  });
-}
+    const favoritesKey = 'astra_sports_favorites_v1';
+    const loadFavorites = () => {
+      try {
+        const items = JSON.parse(localStorage.getItem(favoritesKey) || '[]');
+        return Array.isArray(items) ? items : [];
+      } catch (e) {
+        return [];
+      }
+    };
 
-function renderTeams(list){
-  teamsList.innerHTML='';
-  list.forEach(t=>{
-    const div=document.createElement('div');
-    div.className='team-item';
-    const favActive = favorites.includes(t);
-    div.innerHTML=`<div style="font-weight:700">${t}</div><div><button class="fav ${favActive? 'active':''}" data-team="${t}">${favActive? 'Favorito':'Agregar'}</button></div>`;
-    teamsList.appendChild(div);
-  });
-  teamsList.querySelectorAll('.fav').forEach(btn=>btn.addEventListener('click', ()=>toggleFavorite(btn.dataset.team)));
-}
+    const saveFavorites = (list) => localStorage.setItem(favoritesKey, JSON.stringify(list));
+    let favorites = loadFavorites();
 
-function showMatchesForCompetition(compId){
-  const comp = competitions.find(c=>c.id===compId);
-  if(!comp) return;
-  const rows = comp.matches.map(m=>`<tr><td>${m.home} vs ${m.away}</td><td>${m.time}</td><td><button class="tool" data-match="${m.id}">Ver</button></td></tr>`).join('');
-  compsTableBody.innerHTML = `<tr><th>Partido</th><th>Inicio</th><th></th></tr>` + rows;
-  document.querySelectorAll('#competitionsTable button[data-match]').forEach(b=>b.addEventListener('click',()=>openMatch(Number(b.dataset.match))));
-}
+    const compsBody = document.querySelector('#competitionsTable tbody');
+    const teamsList = document.getElementById('teamsList');
+    const favoritesSidebar = document.getElementById('favoritesSidebar');
+    const liveFeed = document.getElementById('liveFeed');
+    const favoritesCount = document.getElementById('favoritesCount');
 
-function toggleFavorite(team){
-  if(favorites.includes(team)){
-    favorites = favorites.filter(t=>t!==team);
-  } else {
-    favorites.push(team);
-  }
-  saveFavorites(favorites);
-  renderTeams(teams);
-  renderFavoritesPanel();
-}
-
-function renderFavoritesPanel(){
-  // show a short summary at top of teams panel
-  const panelTitle = document.querySelector('.teams-panel h4');
-  panelTitle.textContent = `Mis equipos (${favorites.length})`;
-}
-
-function openMatch(matchId){
-  // find match
-  const allMatches = competitions.flatMap(c=>c.matches);
-  const match = allMatches.find(m=>m.id===matchId);
-  if(!match) return;
-  // show a simple modal-like view in live feed
-  const node = document.createElement('div');
-  node.className='event';
-  node.innerHTML = `<div style="font-weight:800">${match.home} vs ${match.away}</div><div class="time">Inicio: ${match.time}</div><div style="margin-top:8px;color:var(--muted)">Presioná "Simular" para enviar eventos de prueba (goles, tarjetas) a tus equipos favoritos.</div>`;
-  liveFeed.prepend(node);
-}
-
-// Notification helpers
-async function ensureNotificationPermission(){
-  if(!('Notification' in window)){
-    alert('Tu navegador no soporta notificaciones.');
-    return false;
-  }
-  if(Notification.permission === 'granted') return true;
-  if(Notification.permission !== 'denied'){
-    const perm = await Notification.requestPermission();
-    return perm === 'granted';
-  }
-  return false;
-}
-
-document.getElementById('notifyPermission').addEventListener('click', async ()=>{
-  const ok = await ensureNotificationPermission();
-  if(ok) alert('Notificaciones activadas.');
-  else alert('No se pudo activar notificaciones. Revisa la configuración del navegador.');
-});
-
-function pushNotification(title, body){
-  if(Notification.permission === 'granted'){
-    try{new Notification(title,{body});}catch(e){console.warn('No se pudo mostrar notificación',e)}
-  }
-}
-
-function logEvent(text,small){
-  const e=document.createElement('div');
-  e.className='event';
-  const time = new Date().toLocaleTimeString();
-  e.innerHTML = `<div class="time">${time}</div><div>${text}</div>` + (small? `<div style="color:var(--muted);font-size:12px;margin-top:6px">${small}</div>`:'');
-  liveFeed.prepend(e);
-}
-
-// Simulate live match events for demonstration
-const sampleEvents = [
-  {type:'kickoff',text:'¡Comenzó el partido!'},
-  {type:'goal',team:'River Plate',player:'J. Fernández',text:'GOL — River Plate (J. Fernández) 1-0',icon:'⚽'},
-  {type:'yellow',team:'Boca Juniors',player:'M. Gómez',text:'Tarjeta amarilla — M. Gómez',icon:'🟨'},
-  {type:'goal',team:'Boca Juniors',player:'L. Martínez',text:'GOL — Boca Juniors (L. Martínez) 1-1',icon:'⚽'},
-  {type:'red',team:'Boca Juniors',player:'M. Gómez',text:'Tarjeta roja — M. Gómez (expulsado)',icon:'🟥'},
-  {type:'end',text:'Final del partido — 1-1'}
-];
-
-function simulateMatchSequence(){
-  logEvent('Simulación iniciada. Los eventos se mostrarán aquí.');
-  sampleEvents.forEach((ev,idx)=>{
-    setTimeout(()=>{
-      handleMatchEvent(ev);
-    }, 3000*(idx+1));
-  });
-}
-
-document.getElementById('simulate').addEventListener('click', ()=>{
-  simulateMatchSequence();
-});
-
-function handleMatchEvent(ev){
-  if(ev.type === 'kickoff'){
-    logEvent(ev.text);
-    pushNotification('Partido en vivo', ev.text);
-    return;
-  }
-  if(ev.type === 'goal'){
-    const text = `${ev.icon || '⚽'} ${ev.text}`;
-    logEvent(`<span class="scorer">${text}</span>`);
-    pushNotification('Gol', `${ev.team}: ${ev.player}`);
-    // if favorite team scored or conceded
-    if(favorites.includes(ev.team) || favorites.includes(ev.team)){
-      // generic notification already sent
+    function renderCompetitions() {
+      compsBody.innerHTML = competitions.map(c => `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.type}</td>
+          <td>${c.next}</td>
+        </tr>
+      `).join('');
     }
-    return;
-  }
-  if(ev.type === 'yellow' || ev.type === 'red'){
-    const cls = ev.type === 'red' ? 'card red' : 'card yellow';
-    logEvent(`<span class="${cls}">${ev.text}</span>`);
-    pushNotification(ev.type === 'red' ? 'Tarjeta roja' : 'Tarjeta amarilla', `${ev.team}: ${ev.player}`);
-    return;
-  }
-  if(ev.type === 'end'){
-    logEvent(`<strong>${ev.text}</strong>`);
-    pushNotification('Final', ev.text);
-    return;
-  }
-  // fallback
-  logEvent(ev.text || JSON.stringify(ev));
-}
 
-// Auto-notify upcoming matches for favorite teams (demo: check every 10s)
-function checkUpcomingMatches(){
-  // In a real implementation, you'd fetch a schedule from an API and compare times
-  // Here we mock a check and notify if a favorite is playing within the next simulated window
-  const now = new Date();
-  // demo: if any favorite exists, notify that they'll play soon
-  if(favorites.length){
-    favorites.forEach(team=>{
-      logEvent(`Recordatorio: ${team} tiene un partido próximamente.`, 'Recibirás notificaciones en vivo si estás suscrito.');
+    function renderFavoriteTeams() {
+      teamsList.innerHTML = teams.map(team => {
+        const active = favorites.includes(team);
+        return `
+          <div class="favorite-item">
+            <div class="left">
+              <div class="tiny-crest ${team.includes('River') || team.includes('Boca') ? 'red' : (team.includes('Madrid') ? 'gold' : (team.includes('Barcelona') ? 'green' : 'purple'))}" style="width:24px;height:24px;border-radius:8px; font-size:10px;">
+                ${team.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase()}
+              </div>
+              <span>${team}</span>
+            </div>
+            <button class="tag ${active ? 'active' : ''}" data-team="${team}" type="button">${active ? 'Fav' : 'Agregar'}</button>
+          </div>
+        `;
+      }).join('');
+
+      teamsList.querySelectorAll('[data-team]').forEach(btn => {
+        btn.addEventListener('click', () => toggleFavorite(btn.dataset.team));
+      });
+
+      favoritesSidebar.innerHTML = favorites.length ? favorites.map(team => `
+        <div class="favorite-item">
+          <div class="left">
+            <div class="tiny-crest ${team.includes('River') || team.includes('Boca') ? 'red' : (team.includes('Madrid') ? 'gold' : (team.includes('Barcelona') ? 'green' : 'purple'))}" style="width:24px;height:24px;border-radius:8px; font-size:10px;">
+              ${team.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase()}
+            </div>
+            <span>${team}</span>
+          </div>
+          <span class="tag active">On</span>
+        </div>
+      `).join('') : '<div class="muted">No hay equipos favoritos todavía.</div>';
+
+      favoritesCount.textContent = favorites.length;
+    }
+
+    function toggleFavorite(team) {
+      const exists = favorites.includes(team);
+      favorites = exists ? favorites.filter(t => t !== team) : [...favorites, team];
+      saveFavorites(favorites);
+      renderFavoriteTeams();
+    }
+
+    function addFeedItem({ type, text, player, team, subtitle }) {
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      item.innerHTML = `
+        <div class="feed-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+        <div class="event-tag ${type}">${type === 'goal' ? 'Gol' : type === 'yellow' ? 'Amarilla' : type === 'red' ? 'Roja' : 'Inicio'}</div>
+        <div>${text}</div>
+        ${player ? `<div class="feed-players">${player}</div>` : ''}
+        ${subtitle ? `<div class="muted" style="margin-top:6px; font-size:12px;">${subtitle}</div>` : ''}
+      `;
+      liveFeed.prepend(item);
+    }
+
+    function pushNotification(title, body) {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(title, { body });
+        } catch (e) {
+          console.warn('Notificación bloqueada', e);
+        }
+      }
+    }
+
+    document.getElementById('notifyPermission').addEventListener('click', async () => {
+      if (!('Notification' in window)) {
+        alert('Este navegador no soporta notificaciones.');
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        pushNotification('Astra AI', 'Alertas activadas para partidos y goles.');
+      }
     });
-  }
-}
-setInterval(checkUpcomingMatches, 15000);
 
-// initial render
-renderCompetitions();
-renderTeams(teams);
-renderFavoritesPanel();
+    const matchEvents = [
+      { type: 'kickoff', text: 'Partido iniciado', subtitle: 'River Plate vs Boca Juniors' },
+      { type: 'goal', team: 'River Plate', player: 'J. Fernández', text: 'Gol de River Plate', subtitle: '1-0 para River' },
+      { type: 'yellow', team: 'Boca Juniors', player: 'M. Gómez', text: 'Tarjeta amarilla', subtitle: 'Boca Juniors' },
+      { type: 'goal', team: 'Boca Juniors', player: 'L. Martínez', text: 'Gol de Boca Juniors', subtitle: '1-1' },
+      { type: 'red', team: 'Boca Juniors', player: 'M. Gómez', text: 'Tarjeta roja', subtitle: 'Boca quedan con 10' },
+      { type: 'end', text: 'Final del partido', subtitle: 'Resultado final: 2-1 para River' }
+    ];
 
-// Expose hooks for server integration (comments for developer)
-// - To integrate con datos reales, conectar un WebSocket o Server-Sent Events que emita objetos de evento similares a `sampleEvents`.
-// - Al recibir un evento, llamar `handleMatchEvent(eventObject)` para mostrar en la UI y enviar notificaciones.
-// - Para programar notificaciones antes del partido, enviar desde el servidor un evento tipo 'upcoming' con la hora de inicio.
+    function simulateMatchSequence() {
+      matchEvents.forEach((event, index) => {
+        setTimeout(() => {
+          addFeedItem({
+            type: event.type,
+            text: event.text,
+            player: event.player || '',
+            subtitle: event.subtitle || ''
+          });
 
-</script>
+          if (event.type === 'goal' || event.type === 'yellow' || event.type === 'red' || event.type === 'end') {
+            pushNotification(
+              event.type === 'goal' ? 'Gol' : event.type === 'yellow' ? 'Tarjeta amarilla' : event.type === 'red' ? 'Tarjeta roja' : 'Final',
+              event.subtitle || event.text
+            );
+          }
+        }, 1800 * (index + 1));
+      });
+    }
+
+    document.getElementById('simulate').addEventListener('click', simulateMatchSequence);
+
+    renderCompetitions();
+    renderFavoriteTeams();
+
+    const demoFeed = [
+      { type: 'kickoff', text: 'El partido está por comenzar', subtitle: 'River Plate vs Boca Juniors' },
+      { type: 'goal', text: 'Gol de River Plate', player: 'J. Fernández', subtitle: 'Asistencia: M. Barrios' },
+      { type: 'yellow', text: 'Amarilla para Boca', player: 'M. Gómez', subtitle: 'Minuto 66' },
+      { type: 'goal', text: 'Gol de Boca Juniors', player: 'L. Martínez', subtitle: 'Minuto 72' },
+      { type: 'red', text: 'Roja directa', player: 'M. Gómez', subtitle: 'Expulsado' }
+    ];
+
+    demoFeed.forEach((item) => addFeedItem(item));
+  </script>
 </body>
 </html>
