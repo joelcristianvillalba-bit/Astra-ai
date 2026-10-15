@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,96 +6,220 @@
 <meta name="theme-color" content="#101114">
 <title>Astra AI</title>
 <style>
-:root{--bg:#101114;--panel:#191a20;--text:#f5f5f7;--muted:#a2a4b1;--accent:#a78bfa;--border:#30313b}
+:root{
+  --bg:#0e1015;
+  --bg-elev:#151922;
+  --panel:#1a1d28;
+  --panel-strong:#202532;
+  --text:#f4f7ff;
+  --muted:#a5adbf;
+  --accent:#9b7cff;
+  --accent-2:#4cc9f0;
+  --accent-3:#7ef0c2;
+  --border:#2d3343;
+  --shadow:rgba(14,16,21,0.42);
+  --success:#72f0b0;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial,sans-serif}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at top, #171b2a 0%, var(--bg) 42%);color:var(--text);font-family:system-ui,Arial,sans-serif}
 button,textarea{font:inherit}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer}
 .app{display:flex;min-height:100vh}
-aside{width:235px;background:#15161a;border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:16px}
+aside{width:235px;background:rgba(17,20,27,0.9);border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:16px;backdrop-filter:blur(18px)}
 .logo{font-size:25px;font-weight:800;letter-spacing:-1px;padding:5px}
 .logo span{color:var(--accent)}
-button{cursor:pointer}
-.new-chat,.nav-button{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:#22232b;color:var(--text);text-align:left}
+.new-chat,.nav-button{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:#1d2231;color:var(--text);text-align:left;transition:all .2s ease}
 .nav-button{background:transparent;border-color:transparent;color:var(--muted);margin-top:5px}
-.nav-button:hover,.new-chat:hover{background:#292a34}
+.nav-button:hover,.new-chat:hover{background:#292f3f;border-color:var(--border);transform:translateY(-1px)}
 .sidebar-bottom{margin-top:auto;color:var(--muted);font-size:12px;line-height:1.6;padding:8px}
 main{flex:1;min-width:0;min-height:100vh;display:flex;flex-direction:column}
-header{height:62px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px}
+header{height:62px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(9,11,15,.42);backdrop-filter:blur(10px)}
 .model{font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--border);padding:8px 12px;border-radius:20px}
-.content{width:100%;max-width:850px;margin:auto;padding:28px 20px 16px;flex:1;display:flex;flex-direction:column}
-.welcome{text-align:center;margin:auto 0 28px}
-.orb{width:65px;height:65px;margin:0 auto 20px;border-radius:22px;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);box-shadow:0 0 45px #8b5cf633}
-h1{font-size:clamp(28px,5vw,42px);margin:0 0 12px;letter-spacing:-1.3px}
-.subtitle{color:var(--muted);line-height:1.6;max-width:480px;margin:auto}
+.content{width:100%;max-width:980px;margin:auto;padding:28px 20px 16px;flex:1;display:flex;flex-direction:column}
+.welcome{text-align:center;margin:auto 0 18px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid rgba(155,124,255,.35);background:rgba(155,124,255,.08);color:#ddd2ff;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.orb{width:72px;height:72px;margin:18px auto 18px;border-radius:24px;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,#8b5cf6,#3b82f6 55%, #4cc9f0);box-shadow:0 0 45px rgba(155,124,255,.4)}
+h1{font-size:clamp(28px,5vw,46px);margin:0 0 12px;letter-spacing:-1.3px;line-height:1.05}
+.subtitle{color:var(--muted);line-height:1.7;max-width:620px;margin:auto;font-size:1.05rem}
 .suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:26px 0}
-.suggestion{text-align:left;padding:15px;border-radius:14px;background:var(--panel);border:1px solid var(--border);color:var(--text);min-height:95px}
-.suggestion:hover{border-color:var(--accent)}
+.suggestion{text-align:left;padding:15px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));border:1px solid var(--border);color:var(--text);min-height:95px;transition:all .2s ease}
+.suggestion:hover{border-color:rgba(155,124,255,.9);box-shadow:0 15px 30px rgba(155,124,255,.08);transform:translateY(-2px)}
 .suggestion strong{display:block;margin-bottom:7px}
 .suggestion small{color:var(--muted);line-height:1.5}
+.plans{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:16px;margin:18px 0 12px}
+.plan{background:linear-gradient(180deg, rgba(20,24,33,.95), rgba(19,22,31,.9));border:1px solid var(--border);border-radius:20px;padding:20px;position:relative;overflow:hidden;box-shadow:0 18px 40px var(--shadow)}
+.plan.featured{border-color:rgba(155,124,255,.75);box-shadow:0 18px 40px rgba(155,124,255,.14)}
+.plan .tag{position:absolute;top:14px;right:14px;padding:6px 10px;border-radius:999px;background:rgba(126,240,194,.12);color:var(--success);border:1px solid rgba(126,240,194,.3);font-size:11px;font-weight:700}
+.plan h3{margin:18px 0 8px;font-size:1.2rem}
+.plan .price{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
+.plan .price strong{font-size:2rem;letter-spacing:-.06em}
+.plan .price span{color:var(--muted)}
+.plan p{margin:0 0 18px;color:var(--muted);line-height:1.6}
+.plan ul{list-style:none;padding:0;margin:0 0 18px;display:grid;gap:10px;color:#e6ebf7}
+.plan li{display:flex;align-items:flex-start;gap:8px;color:var(--muted)}
+.plan li::before{content:"✓";color:var(--accent-3);font-weight:800;display:inline-block;margin-top:-1px}
+.plan .cta{width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(155,124,255,.7);background:rgba(155,124,255,.12);color:var(--text);font-weight:700}
+.plan.featured .cta{background:linear-gradient(135deg, var(--accent), #6db7ff);color:#130e1f;border:none}
 #messages{display:flex;flex-direction:column;gap:16px;margin-bottom:18px}
 .message{padding:14px 16px;border-radius:15px;line-height:1.65;overflow-wrap:anywhere;white-space:pre-wrap}
-.user{align-self:flex-end;max-width:90%;background:#29253b;border:1px solid #494065}
+.user{align-self:flex-end;max-width:90%;background:#2d2346;border:1px solid #564b6f}
 .assistant{background:var(--panel);border:1px solid var(--border)}
-.composer{border:1px solid #41424d;background:var(--panel);border-radius:18px;padding:12px}
+.composer{border:1px solid #41424d;background:rgba(26,29,40,.9);border-radius:18px;padding:12px;box-shadow:0 18px 38px rgba(0,0,0,.18)}
 textarea{display:block;width:100%;resize:vertical;min-height:55px;max-height:180px;background:transparent;border:0;outline:0;color:var(--text);padding:8px;font-size:16px}
 textarea::placeholder{color:#858795}
 .composer-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:6px}
 .tools{display:flex;flex-wrap:wrap;gap:7px}
 .tool{background:transparent;border:1px solid var(--border);border-radius:9px;padding:7px 9px;color:var(--muted);font-size:12px}
-.send{border:0;border-radius:10px;background:var(--accent);color:#171321;padding:10px 16px;font-weight:750}
-.notice{text-align:center;color:#777987;font-size:11px;line-height:1.5;padding-top:10px}
-@media(max-width:650px){aside{display:none}header{padding:0 14px;height:58px}.content{padding:24px 13px 12px}.suggestions{gap:8px}.suggestion{padding:11px;min-height:100px}.composer-bottom{align-items:flex-end}.tool{padding:7px}}
+.send{border:0;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6aa9ff);color:#171321;padding:10px 16px;font-weight:800;box-shadow:0 10px 24px rgba(155,124,255,.35)}
+.notice{text-align:center;color:#777987;font-size:11px;line-height:1.5;padding-top:12px}
+/* New competitions / favorites styles */
+.competitions{display:flex;gap:18px;margin-top:18px;align-items:flex-start}
+.comps-list{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));border:1px solid var(--border);border-radius:14px;padding:14px}
+.comps-list h4{margin:0 0 10px}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:8px 10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,.03);font-size:14px;color:var(--muted)}
+.teams-panel{width:340px;min-width:260px;background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border:1px solid var(--border);border-radius:14px;padding:14px}
+.teams-panel h4{margin:0 0 10px}
+.team-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:10px;margin-bottom:8px;background:transparent}
+.team-item .fav{background:transparent;border:1px solid var(--border);padding:6px 8px;border-radius:8px;color:var(--muted)}
+.team-item .fav.active{background:linear-gradient(135deg,var(--accent),#6aa9ff);color:#0c0920;border:none}
+.live-feed{margin-top:12px;max-height:220px;overflow:auto;padding:8px;border-radius:8px;background:rgba(0,0,0,0.06)}
+.event{padding:8px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02);font-size:14px}
+.event .time{color:var(--muted);font-size:12px;margin-bottom:6px}
+.card.red{color:#ff6b6b;font-weight:700}
+.card.yellow{color:#ffd166;font-weight:700}
+.scorer{color:var(--accent-3);font-weight:700}
+@media(max-width:900px){
+  .plans{grid-template-columns:1fr}
+  .competitions{flex-direction:column}
+  .teams-panel{width:100%}
+}
+@media(max-width:650px){
+  aside{display:none}
+  header{padding:0 14px;height:58px}.content{padding:24px 13px 12px}.suggestions{gap:8px}.suggestion{padding:11px;min-height:100px}.composer-bottom{align-items:flex-start;flex-direction:column}.send{width:100%}
+}
 @media(max-width:370px){.suggestions{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
-<aside>
-<div class="logo">✦ Astra<span> AI</span></div>
-<button class="new-chat" id="newChat">＋ Nuevo chat</button>
-<div>
-<button class="nav-button" data-prompt="Ayudame a programar una aplicación.">⌘ Programación</button>
-<button class="nav-button" data-prompt="Ayudame a crear una página web desde cero.">▧ Desarrollo web</button>
-<button class="nav-button" data-prompt="Ayudame a analizar un archivo.">▤ Archivos</button>
-<button class="nav-button" data-prompt="Ayudame a crear una imagen.">◉ Imágenes</button>
-</div>
-<div class="sidebar-bottom">Astra AI · Versión inicial<br>Interfaz experimental</div>
-</aside>
-<main>
-<header>
-<div class="logo" style="font-size:21px">✦ Astra<span> AI</span></div>
-<div class="model">Asistente IA ▾</div>
-</header>
-<section class="content">
-<div class="welcome" id="welcome">
-<div class="orb">✦</div>
-<h1>¿Qué vamos a crear hoy?</h1>
-<p class="subtitle">Tu espacio para programar, aprender, desarrollar páginas web y convertir tus ideas en proyectos.</p>
-<div class="suggestions">
-<button class="suggestion" data-prompt="Creá el código de una página web moderna y explicame cómo publicarla."><strong>⌘ Programar</strong><small>Escribí código y desarrollá proyectos.</small></button>
-<button class="suggestion" data-prompt="Ayudame a diseñar y construir una página web desde cero."><strong>▧ Crear una web</strong><small>Diseñá sitios web paso a paso.</small></button>
-<button class="suggestion" data-prompt="Explicame cómo resolver un problema paso a paso."><strong>✧ Aprender</strong><small>Entendé temas complejos fácilmente.</small></button>
-<button class="suggestion" data-prompt="Dame ideas para un proyecto digital gratuito."><strong>◉ Crear ideas</strong><small>Explorá ideas para nuevos proyectos.</small></button>
-</div>
-</div>
-<div id="messages" aria-live="polite"></div>
-<form class="composer" id="chatForm">
-<textarea id="prompt" placeholder="Preguntale algo a Astra AI..." required></textarea>
-<div class="composer-bottom">
-<div class="tools">
-<button class="tool" type="button" id="fileButton">＋ Archivo</button>
-<button class="tool" type="button" data-feature="web">⌕ Web</button>
-<button class="tool" type="button" data-feature="images">▧ Imágenes</button>
-</div>
-<button class="send" id="sendButton" type="submit">Enviar ↑</button>
-</div>
-<input id="fileInput" type="file" hidden>
-</form>
-<p class="notice">Astra AI está en desarrollo. Para responder con inteligencia artificial real, hay que conectar un modelo mediante un servidor.</p>
-</section>
-</main>
+  <aside>
+    <div class="logo">✦ Astra<span> AI</span></div>
+    <button class="new-chat" id="newChat">＋ Nuevo chat</button>
+    <div>
+      <button class="nav-button" data-prompt="Ayudame a programar una aplicación.">⌘ Programación</button>
+      <button class="nav-button" data-prompt="Ayudame a crear una página web desde cero.">▧ Desarrollo web</button>
+      <button class="nav-button" data-prompt="Ayudame a analizar un archivo.">▤ Archivos</button>
+      <button class="nav-button" data-prompt="Ayudame a crear una imagen.">◉ Imágenes</button>
+    </div>
+    <div class="sidebar-bottom">Astra AI · Versión inicial<br>Interfaz experimental</div>
+  </aside>
+  <main>
+    <header>
+      <div class="logo" style="font-size:21px">✦ Astra<span> AI</span></div>
+      <div class="model">Asistente IA ▾</div>
+    </header>
+    <section class="content">
+      <div class="welcome" id="welcome">
+        <div class="hero-badge">IA para crear y iterar rápido</div>
+        <div class="orb">✦</div>
+        <h1>¿Qué vamos a crear hoy?</h1>
+        <p class="subtitle">Tu espacio para programar, aprender, desarrollar páginas web y convertir tus ideas en proyectos con velocidad y claridad.</p>
+
+        <div class="plans" aria-label="Planes Astra AI">
+          <article class="plan">
+            <div class="tag">Starter</div>
+            <h3>Starter</h3>
+            <div class="price"><strong>$0</strong><span>/mes</span></div>
+            <p>Ideal para probar la plataforma y crear tus primeros prototipos.</p>
+            <ul>
+              <li>3 chats por día</li>
+              <li>Generación básica</li>
+              <li>Acceso a plantillas</li>
+            </ul>
+            <button class="cta" type="button">Probar gratis</button>
+          </article>
+
+          <article class="plan featured">
+            <div class="tag">Más popular</div>
+            <h3>Pro</h3>
+            <div class="price"><strong>$19</strong><span>/mes</span></div>
+            <p>Para usuarios que quieren trabajar de forma continua con más potencia.</p>
+            <ul>
+              <li>Acceso completo a IA</li>
+              <li>Generación de archivos</li>
+              <li>Soporte prioritario</li>
+            </ul>
+            <button class="cta" type="button">Elegir Pro</button>
+          </article>
+
+          <article class="plan">
+            <div class="tag">Team</div>
+            <h3>Business</h3>
+            <div class="price"><strong>$49</strong><span>/mes</span></div>
+            <p>Para equipos que necesitan colaboración y automatizaciones en producción.</p>
+            <ul>
+              <li>Espacios compartidos</li>
+              <li>Historial avanzado</li>
+              <li>Integraciones y roles</li>
+            </ul>
+            <button class="cta" type="button">Consultar plan</button>
+          </article>
+        </div>
+
+        <div class="competitions">
+          <div class="comps-list" id="compsList">
+            <h4>Ligas y Copas</h4>
+            <table class="table" id="competitionsTable">
+              <thead>
+                <tr><th>Competición</th><th>Tipo</th><th>Próximo</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <p style="margin-top:10px;color:var(--muted);font-size:13px">Seleccioná una competición para ver partidos y marcar equipos como favoritos.</p>
+          </div>
+
+          <aside class="teams-panel">
+            <h4>Mis equipos</h4>
+            <div id="teamsList"></div>
+            <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+              <button id="notifyPermission" class="cta" type="button" style="padding:8px 10px;">Activar notificaciones</button>
+              <button id="simulate" class="tool" type="button">Simular partido</button>
+            </div>
+            <div class="live-feed" id="liveFeed" aria-live="polite"></div>
+          </aside>
+        </div>
+
+        <div class="suggestions">
+          <button class="suggestion" data-prompt="Creá el código de una página web moderna y explicame cómo publicarla."><strong>⌘ Programar</strong><small>Escribí código y desarrollá proyectos.</small></button>
+          <button class="suggestion" data-prompt="Ayudame a diseñar y construir una página web desde cero."><strong>▧ Crear una web</strong><small>Diseñá sitios web paso a paso.</small></button>
+          <button class="suggestion" data-prompt="Explicame cómo resolver un problema paso a paso."><strong>✧ Aprender</strong><small>Entendé temas complejos fácilmente.</small></button>
+          <button class="suggestion" data-prompt="Dame ideas para un proyecto digital gratuito."><strong>◉ Crear ideas</strong><small>Explorá ideas para nuevos proyectos.</small></button>
+        </div>
+      </div>
+
+      <div id="messages" aria-live="polite"></div>
+
+      <form class="composer" id="chatForm">
+        <textarea id="prompt" placeholder="Preguntale algo a Astra AI..." required></textarea>
+        <div class="composer-bottom">
+          <div class="tools">
+            <button class="tool" type="button" id="fileButton">＋ Archivo</button>
+            <button class="tool" type="button" data-feature="web">⌕ Web</button>
+            <button class="tool" type="button" data-feature="images">▧ Imágenes</button>
+          </div>
+          <button class="send" id="sendButton" type="submit">Enviar ↑</button>
+        </div>
+        <input id="fileInput" type="file" hidden>
+      </form>
+      <p class="notice">Astra AI está en desarrollo. Para notificaciones reales y eventos en vivo, conectá una API de partidos o WebSocket en el servidor.</p>
+    </section>
+  </main>
 </div>
 <script>
+// --- Chat UI (unchanged) ---
 const form=document.getElementById("chatForm");
 const promptBox=document.getElementById("prompt");
 const messages=document.getElementById("messages");
@@ -104,50 +227,251 @@ const welcome=document.getElementById("welcome");
 const sendButton=document.getElementById("sendButton");
 
 function addMessage(text,role){
- const el=document.createElement("div");
- el.className="message "+role;
- el.textContent=text;
- messages.appendChild(el);
- return el;
+  const el=document.createElement("div");
+  el.className="message "+role;
+  el.textContent=text;
+  messages.appendChild(el);
+  return el;
 }
 function ask(text){
- promptBox.value=text;
- promptBox.focus();
+  promptBox.value=text;
+  promptBox.focus();
 }
 document.querySelectorAll("[data-prompt]").forEach(button=>{
- button.addEventListener("click",()=>ask(button.dataset.prompt));
+  button.addEventListener("click",()=>ask(button.dataset.prompt));
 });
 document.getElementById("newChat").addEventListener("click",()=>{
- messages.replaceChildren();
- promptBox.value="";
- welcome.style.display="";
- promptBox.focus();
+  messages.replaceChildren();
+  promptBox.value="";
+  welcome.style.display="";
+  promptBox.focus();
 });
+// --- File chooser ---
 document.getElementById("fileButton").addEventListener("click",()=>{
- document.getElementById("fileInput").click();
+  document.getElementById("fileInput").click();
 });
 document.getElementById("fileInput").addEventListener("change",event=>{
- const file=event.target.files[0];
- if(file)addMessage("Archivo seleccionado: "+file.name+"\nLa lectura de archivos se conectará en una próxima versión.","assistant");
+  const file=event.target.files[0];
+  if(file)addMessage("Archivo seleccionado: "+file.name+"\nLa lectura de archivos se conectará en una próxima versión.","assistant");
 });
 document.querySelectorAll("[data-feature]").forEach(button=>{
- button.addEventListener("click",()=>{
-  const feature=button.dataset.feature;
-  addMessage(feature==="web"?"La búsqueda web todavía no está conectada.":"La generación de imágenes todavía no está conectada.","assistant");
- });
+  button.addEventListener("click",()=>{
+   const feature=button.dataset.feature;
+   addMessage(feature==="web"?"La búsqueda web todavía no está conectada.":"La generación de imágenes todavía no está conectada.","assistant");
+  });
 });
 form.addEventListener("submit",async event=>{
- event.preventDefault();
- const text=promptBox.value.trim();
- if(!text)return;
- welcome.style.display="none";
- addMessage(text,"user");
- promptBox.value="";
- sendButton.disabled=true;
- const reply=addMessage("Astra AI todavía no tiene un modelo conectado. Primero publicaremos esta página y después conectaremos un modelo de IA gratuito mediante un servidor seguro.","assistant");
- sendButton.disabled=false;
- promptBox.focus();
+  event.preventDefault();
+  const text=promptBox.value.trim();
+  if(!text)return;
+  welcome.style.display="none";
+  addMessage(text,"user");
+  promptBox.value="";
+  sendButton.disabled=true;
+  const reply=addMessage("Astra AI todavía no tiene un modelo conectado. Primero publicaremos esta página y después conectaremos un modelo de IA gratuito mediante un servidor seguro.","assistant");
+  sendButton.disabled=false;
+  promptBox.focus();
+  reply.scrollIntoView({behavior:"smooth", block:"nearest"});
 });
+
+// --- Competitions / Teams / Notifications (new) ---
+const competitions = [
+  {id:1,name:'Liga Nacional',type:'Liga',next:'2026-10-20 19:00',matches:[
+    {id:101,home:'River Plate',away:'Boca Juniors',time:'2026-10-20 19:00'},
+    {id:102,home:'Racing',away:'Independiente',time:'2026-10-21 16:00'}
+  ]},
+  {id:2,name:'Copa Local',type:'Copa',next:'2026-11-02 18:00',matches:[
+    {id:201,home:'Estudiantes',away:'Velez',time:'2026-11-02 18:00'}
+  ]}
+];
+
+const teams = Array.from(new Set(competitions.flatMap(c=>c.matches.flatMap(m=>[m.home,m.away]))));
+
+const favoritesKey = 'astra_favorites_v1';
+function loadFavorites(){
+  try{const raw=localStorage.getItem(favoritesKey);return raw?JSON.parse(raw):[];}catch(e){return[]}
+}
+function saveFavorites(list){localStorage.setItem(favoritesKey,JSON.stringify(list));}
+let favorites = loadFavorites();
+
+const compsTableBody = document.querySelector('#competitionsTable tbody');
+const teamsList = document.getElementById('teamsList');
+const liveFeed = document.getElementById('liveFeed');
+
+function renderCompetitions(){
+  compsTableBody.innerHTML='';
+  competitions.forEach(c=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><button class="tool" data-id="${c.id}" style="background:transparent;border:0;color:var(--accent);cursor:pointer">${c.name}</button></td><td>${c.type}</td><td>${c.next}</td>`;
+    compsTableBody.appendChild(tr);
+  });
+  // add click handlers
+  document.querySelectorAll('#competitionsTable button').forEach(btn=>{
+    btn.addEventListener('click',()=>showMatchesForCompetition(Number(btn.dataset.id)));
+  });
+}
+
+function renderTeams(list){
+  teamsList.innerHTML='';
+  list.forEach(t=>{
+    const div=document.createElement('div');
+    div.className='team-item';
+    const favActive = favorites.includes(t);
+    div.innerHTML=`<div style="font-weight:700">${t}</div><div><button class="fav ${favActive? 'active':''}" data-team="${t}">${favActive? 'Favorito':'Agregar'}</button></div>`;
+    teamsList.appendChild(div);
+  });
+  teamsList.querySelectorAll('.fav').forEach(btn=>btn.addEventListener('click', ()=>toggleFavorite(btn.dataset.team)));
+}
+
+function showMatchesForCompetition(compId){
+  const comp = competitions.find(c=>c.id===compId);
+  if(!comp) return;
+  const rows = comp.matches.map(m=>`<tr><td>${m.home} vs ${m.away}</td><td>${m.time}</td><td><button class="tool" data-match="${m.id}">Ver</button></td></tr>`).join('');
+  compsTableBody.innerHTML = `<tr><th>Partido</th><th>Inicio</th><th></th></tr>` + rows;
+  document.querySelectorAll('#competitionsTable button[data-match]').forEach(b=>b.addEventListener('click',()=>openMatch(Number(b.dataset.match))));
+}
+
+function toggleFavorite(team){
+  if(favorites.includes(team)){
+    favorites = favorites.filter(t=>t!==team);
+  } else {
+    favorites.push(team);
+  }
+  saveFavorites(favorites);
+  renderTeams(teams);
+  renderFavoritesPanel();
+}
+
+function renderFavoritesPanel(){
+  // show a short summary at top of teams panel
+  const panelTitle = document.querySelector('.teams-panel h4');
+  panelTitle.textContent = `Mis equipos (${favorites.length})`;
+}
+
+function openMatch(matchId){
+  // find match
+  const allMatches = competitions.flatMap(c=>c.matches);
+  const match = allMatches.find(m=>m.id===matchId);
+  if(!match) return;
+  // show a simple modal-like view in live feed
+  const node = document.createElement('div');
+  node.className='event';
+  node.innerHTML = `<div style="font-weight:800">${match.home} vs ${match.away}</div><div class="time">Inicio: ${match.time}</div><div style="margin-top:8px;color:var(--muted)">Presioná "Simular" para enviar eventos de prueba (goles, tarjetas) a tus equipos favoritos.</div>`;
+  liveFeed.prepend(node);
+}
+
+// Notification helpers
+async function ensureNotificationPermission(){
+  if(!('Notification' in window)){
+    alert('Tu navegador no soporta notificaciones.');
+    return false;
+  }
+  if(Notification.permission === 'granted') return true;
+  if(Notification.permission !== 'denied'){
+    const perm = await Notification.requestPermission();
+    return perm === 'granted';
+  }
+  return false;
+}
+
+document.getElementById('notifyPermission').addEventListener('click', async ()=>{
+  const ok = await ensureNotificationPermission();
+  if(ok) alert('Notificaciones activadas.');
+  else alert('No se pudo activar notificaciones. Revisa la configuración del navegador.');
+});
+
+function pushNotification(title, body){
+  if(Notification.permission === 'granted'){
+    try{new Notification(title,{body});}catch(e){console.warn('No se pudo mostrar notificación',e)}
+  }
+}
+
+function logEvent(text,small){
+  const e=document.createElement('div');
+  e.className='event';
+  const time = new Date().toLocaleTimeString();
+  e.innerHTML = `<div class="time">${time}</div><div>${text}</div>` + (small? `<div style="color:var(--muted);font-size:12px;margin-top:6px">${small}</div>`:'');
+  liveFeed.prepend(e);
+}
+
+// Simulate live match events for demonstration
+const sampleEvents = [
+  {type:'kickoff',text:'¡Comenzó el partido!'},
+  {type:'goal',team:'River Plate',player:'J. Fernández',text:'GOL — River Plate (J. Fernández) 1-0',icon:'⚽'},
+  {type:'yellow',team:'Boca Juniors',player:'M. Gómez',text:'Tarjeta amarilla — M. Gómez',icon:'🟨'},
+  {type:'goal',team:'Boca Juniors',player:'L. Martínez',text:'GOL — Boca Juniors (L. Martínez) 1-1',icon:'⚽'},
+  {type:'red',team:'Boca Juniors',player:'M. Gómez',text:'Tarjeta roja — M. Gómez (expulsado)',icon:'🟥'},
+  {type:'end',text:'Final del partido — 1-1'}
+];
+
+function simulateMatchSequence(){
+  logEvent('Simulación iniciada. Los eventos se mostrarán aquí.');
+  sampleEvents.forEach((ev,idx)=>{
+    setTimeout(()=>{
+      handleMatchEvent(ev);
+    }, 3000*(idx+1));
+  });
+}
+
+document.getElementById('simulate').addEventListener('click', ()=>{
+  simulateMatchSequence();
+});
+
+function handleMatchEvent(ev){
+  if(ev.type === 'kickoff'){
+    logEvent(ev.text);
+    pushNotification('Partido en vivo', ev.text);
+    return;
+  }
+  if(ev.type === 'goal'){
+    const text = `${ev.icon || '⚽'} ${ev.text}`;
+    logEvent(`<span class="scorer">${text}</span>`);
+    pushNotification('Gol', `${ev.team}: ${ev.player}`);
+    // if favorite team scored or conceded
+    if(favorites.includes(ev.team) || favorites.includes(ev.team)){
+      // generic notification already sent
+    }
+    return;
+  }
+  if(ev.type === 'yellow' || ev.type === 'red'){
+    const cls = ev.type === 'red' ? 'card red' : 'card yellow';
+    logEvent(`<span class="${cls}">${ev.text}</span>`);
+    pushNotification(ev.type === 'red' ? 'Tarjeta roja' : 'Tarjeta amarilla', `${ev.team}: ${ev.player}`);
+    return;
+  }
+  if(ev.type === 'end'){
+    logEvent(`<strong>${ev.text}</strong>`);
+    pushNotification('Final', ev.text);
+    return;
+  }
+  // fallback
+  logEvent(ev.text || JSON.stringify(ev));
+}
+
+// Auto-notify upcoming matches for favorite teams (demo: check every 10s)
+function checkUpcomingMatches(){
+  // In a real implementation, you'd fetch a schedule from an API and compare times
+  // Here we mock a check and notify if a favorite is playing within the next simulated window
+  const now = new Date();
+  // demo: if any favorite exists, notify that they'll play soon
+  if(favorites.length){
+    favorites.forEach(team=>{
+      logEvent(`Recordatorio: ${team} tiene un partido próximamente.`, 'Recibirás notificaciones en vivo si estás suscrito.');
+    });
+  }
+}
+setInterval(checkUpcomingMatches, 15000);
+
+// initial render
+renderCompetitions();
+renderTeams(teams);
+renderFavoritesPanel();
+
+// Expose hooks for server integration (comments for developer)
+// - To integrate con datos reales, conectar un WebSocket o Server-Sent Events que emita objetos de evento similares a `sampleEvents`.
+// - Al recibir un evento, llamar `handleMatchEvent(eventObject)` para mostrar en la UI y enviar notificaciones.
+// - Para programar notificaciones antes del partido, enviar desde el servidor un evento tipo 'upcoming' con la hora de inicio.
+
 </script>
 </body>
 </html>
