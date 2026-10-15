@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101114">
+<title>Astra AI</title>
+<style>
+:root{--bg:#101114;--panel:#191a20;--text:#f5f5f7;--muted:#a2a4b1;--accent:#a78bfa;--border:#30313b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial,sans-serif}
+button,textarea{font:inherit}
+.app{display:flex;min-height:100vh}
+aside{width:235px;background:#15161a;border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:16px}
+.logo{font-size:25px;font-weight:800;letter-spacing:-1px;padding:5px}
+.logo span{color:var(--accent)}
+button{cursor:pointer}
+.new-chat,.nav-button{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:#22232b;color:var(--text);text-align:left}
+.nav-button{background:transparent;border-color:transparent;color:var(--muted);margin-top:5px}
+.nav-button:hover,.new-chat:hover{background:#292a34}
+.sidebar-bottom{margin-top:auto;color:var(--muted);font-size:12px;line-height:1.6;padding:8px}
+main{flex:1;min-width:0;min-height:100vh;display:flex;flex-direction:column}
+header{height:62px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px}
+.model{font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--border);padding:8px 12px;border-radius:20px}
+.content{width:100%;max-width:850px;margin:auto;padding:28px 20px 16px;flex:1;display:flex;flex-direction:column}
+.welcome{text-align:center;margin:auto 0 28px}
+.orb{width:65px;height:65px;margin:0 auto 20px;border-radius:22px;display:grid;place-items:center;font-size:34px;background:linear-gradient(135deg,#8b5cf6,#3b82f6);box-shadow:0 0 45px #8b5cf633}
+h1{font-size:clamp(28px,5vw,42px);margin:0 0 12px;letter-spacing:-1.3px}
+.subtitle{color:var(--muted);line-height:1.6;max-width:480px;margin:auto}
+.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:26px 0}
+.suggestion{text-align:left;padding:15px;border-radius:14px;background:var(--panel);border:1px solid var(--border);color:var(--text);min-height:95px}
+.suggestion:hover{border-color:var(--accent)}
+.suggestion strong{display:block;margin-bottom:7px}
+.suggestion small{color:var(--muted);line-height:1.5}
+#messages{display:flex;flex-direction:column;gap:16px;margin-bottom:18px}
+.message{padding:14px 16px;border-radius:15px;line-height:1.65;overflow-wrap:anywhere;white-space:pre-wrap}
+.user{align-self:flex-end;max-width:90%;background:#29253b;border:1px solid #494065}
+.assistant{background:var(--panel);border:1px solid var(--border)}
+.composer{border:1px solid #41424d;background:var(--panel);border-radius:18px;padding:12px}
+textarea{display:block;width:100%;resize:vertical;min-height:55px;max-height:180px;background:transparent;border:0;outline:0;color:var(--text);padding:8px;font-size:16px}
+textarea::placeholder{color:#858795}
+.composer-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:6px}
+.tools{display:flex;flex-wrap:wrap;gap:7px}
+.tool{background:transparent;border:1px solid var(--border);border-radius:9px;padding:7px 9px;color:var(--muted);font-size:12px}
+.send{border:0;border-radius:10px;background:var(--accent);color:#171321;padding:10px 16px;font-weight:750}
+.notice{text-align:center;color:#777987;font-size:11px;line-height:1.5;padding-top:10px}
+@media(max-width:650px){aside{display:none}header{padding:0 14px;height:58px}.content{padding:24px 13px 12px}.suggestions{gap:8px}.suggestion{padding:11px;min-height:100px}.composer-bottom{align-items:flex-end}.tool{padding:7px}}
+@media(max-width:370px){.suggestions{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+<div class="logo">✦ Astra<span> AI</span></div>
+<button class="new-chat" id="newChat">＋ Nuevo chat</button>
+<div>
+<button class="nav-button" data-prompt="Ayudame a programar una aplicación.">⌘ Programación</button>
+<button class="nav-button" data-prompt="Ayudame a crear una página web desde cero.">▧ Desarrollo web</button>
+<button class="nav-button" data-prompt="Ayudame a analizar un archivo.">▤ Archivos</button>
+<button class="nav-button" data-prompt="Ayudame a crear una imagen.">◉ Imágenes</button>
+</div>
+<div class="sidebar-bottom">Astra AI · Versión inicial<br>Interfaz experimental</div>
+</aside>
+<main>
+<header>
+<div class="logo" style="font-size:21px">✦ Astra<span> AI</span></div>
+<div class="model">Asistente IA ▾</div>
+</header>
+<section class="content">
+<div class="welcome" id="welcome">
+<div class="orb">✦</div>
+<h1>¿Qué vamos a crear hoy?</h1>
+<p class="subtitle">Tu espacio para programar, aprender, desarrollar páginas web y convertir tus ideas en proyectos.</p>
+<div class="suggestions">
+<button class="suggestion" data-prompt="Creá el código de una página web moderna y explicame cómo publicarla."><strong>⌘ Programar</strong><small>Escribí código y desarrollá proyectos.</small></button>
+<button class="suggestion" data-prompt="Ayudame a diseñar y construir una página web desde cero."><strong>▧ Crear una web</strong><small>Diseñá sitios web paso a paso.</small></button>
+<button class="suggestion" data-prompt="Explicame cómo resolver un problema paso a paso."><strong>✧ Aprender</strong><small>Entendé temas complejos fácilmente.</small></button>
+<button class="suggestion" data-prompt="Dame ideas para un proyecto digital gratuito."><strong>◉ Crear ideas</strong><small>Explorá ideas para nuevos proyectos.</small></button>
+</div>
+</div>
+<div id="messages" aria-live="polite"></div>
+<form class="composer" id="chatForm">
+<textarea id="prompt" placeholder="Preguntale algo a Astra AI..." required></textarea>
+<div class="composer-bottom">
+<div class="tools">
+<button class="tool" type="button" id="fileButton">＋ Archivo</button>
+<button class="tool" type="button" data-feature="web">⌕ Web</button>
+<button class="tool" type="button" data-feature="images">▧ Imágenes</button>
+</div>
+<button class="send" id="sendButton" type="submit">Enviar ↑</button>
+</div>
+<input id="fileInput" type="file" hidden>
+</form>
+<p class="notice">Astra AI está en desarrollo. Para responder con inteligencia artificial real, hay que conectar un modelo mediante un servidor.</p>
+</section>
+</main>
+</div>
+<script>
+const form=document.getElementById("chatForm");
+const promptBox=document.getElementById("prompt");
+const messages=document.getElementById("messages");
+const welcome=document.getElementById("welcome");
+const sendButton=document.getElementById("sendButton");
+
+function addMessage(text,role){
+ const el=document.createElement("div");
+ el.className="message "+role;
+ el.textContent=text;
+ messages.appendChild(el);
+ return el;
+}
+function ask(text){
+ promptBox.value=text;
+ promptBox.focus();
+}
+document.querySelectorAll("[data-prompt]").forEach(button=>{
+ button.addEventListener("click",()=>ask(button.dataset.prompt));
+});
+document.getElementById("newChat").addEventListener("click",()=>{
+ messages.replaceChildren();
+ promptBox.value="";
+ welcome.style.display="";
+ promptBox.focus();
+});
+document.getElementById("fileButton").addEventListener("click",()=>{
+ document.getElementById("fileInput").click();
+});
+document.getElementById("fileInput").addEventListener("change",event=>{
+ const file=event.target.files[0];
+ if(file)addMessage("Archivo seleccionado: "+file.name+"\nLa lectura de archivos se conectará en una próxima versión.","assistant");
+});
+document.querySelectorAll("[data-feature]").forEach(button=>{
+ button.addEventListener("click",()=>{
+  const feature=button.dataset.feature;
+  addMessage(feature==="web"?"La búsqueda web todavía no está conectada.":"La generación de imágenes todavía no está conectada.","assistant");
+ });
+});
+form.addEventListener("submit",async event=>{
+ event.preventDefault();
+ const text=promptBox.value.trim();
+ if(!text)return;
+ welcome.style.display="none";
+ addMessage(text,"user");
+ promptBox.value="";
+ sendButton.disabled=true;
+ const reply=addMessage("Astra AI todavía no tiene un modelo conectado. Primero publicaremos esta página y después conectaremos un modelo de IA gratuito mediante un servidor seguro.","assistant");
+ sendButton.disabled=false;
+ promptBox.focus();
+});
+</script>
+</body>
+</html>
