@@ -5,77 +5,87 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Astra Live — Pruebas</title>
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 24px; max-width: 800px; margin: auto; }
-    button { margin: 6px 0; padding: 8px 12px; }
-    #log { white-space: pre-wrap; background:#f6f8fa; padding:12px; border-radius:6px; margin-top:12px; min-height:120px;}
-    label { display:block; margin-top:12px; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 20px; max-width:900px; margin:auto; }
+    h1 { margin-bottom: 8px; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    button { padding:8px 12px; cursor:pointer; }
+    #log { white-space: pre-wrap; background:#f6f8fa; padding:12px; border-radius:8px; margin-top:14px; min-height:140px; font-size:13px; }
+    label { display:block; margin-top:10px; }
+    input[type=text] { width:100%; padding:8px; box-sizing:border-box; }
+    .note { color:#666; font-size:13px; margin-top:6px; }
   </style>
 </head>
 <body>
   <h1>Astra Live — Página de pruebas</h1>
 
-  <label>Backend:
-    <input id="backend" type="text" value="BACKEND_URL" style="width:100%" />
+  <label for="backend">Backend (ej: https://mi-backend.onrender.com)
+    <input id="backend" type="text" placeholder="Pega la URL pública de tu backend aquí" />
   </label>
+  <div class="note">Asegurate de que el backend exponga /vapidPublicKey, /subscribe y /simulate.</div>
 
-  <div>
-    <button id="register-sw">Registrar Service Worker</button>
-    <button id="request-notif">Pedir permiso de notifs</button>
+  <div class="controls">
+    <button id="register-sw">Registrar SW</button>
+    <button id="request-notif">Pedir permiso notifs</button>
     <button id="subscribe">Suscribirse (Push)</button>
-    <button id="simulate">Simular evento (POST /simulate)</button>
-    <button id="connect-ws">Conectar WebSocket</button>
+    <button id="simulate">Simular evento</button>
+    <button id="connect-ws">Conectar WS</button>
+    <button id="open-sw-status">Ver estado SW</button>
   </div>
 
-  <h3>Estado / Logs</h3>
+  <h3>Logs / Estado</h3>
   <div id="log">Logs aparecerán aquí...</div>
 
   <script>
     const logEl = document.getElementById('log');
     const backendInput = document.getElementById('backend');
 
-    function log(...txt) {
-      const t = txt.map(x => typeof x === 'object' ? JSON.stringify(x,null,2) : String(x)).join(' ');
-      logEl.textContent = new Date().toLocaleTimeString() + ' — ' + t + '\n' + logEl.textContent;
+    function log(...parts) {
+      const line = parts.map(p => typeof p === 'object' ? JSON.stringify(p,null,2) : String(p)).join(' ');
+      logEl.textContent = new Date().toLocaleTimeString() + ' — ' + line + '\n' + logEl.textContent;
+      console.log(line);
     }
 
     function urlBase64ToUint8Array(base64String) {
       const padding = '='.repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-      const rawData = atob(base64);
-      const outputArray = new Uint8Array(rawData.length);
-      for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-      }
-      return outputArray;
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const raw = atob(base64);
+      const out = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; ++i) out[i] = raw.charCodeAt(i);
+      return out;
     }
 
     async function registerSW() {
-      if ('serviceWorker' in navigator) {
-        try {
-          const reg = await navigator.serviceWorker.register('/sw.js');
-          log('Service worker registrado:', reg.scope);
-        } catch (err) {
-          log('Error registrando SW:', err);
-        }
-      } else {
-        log('Service workers no soportado en este navegador.');
+      if (!('serviceWorker' in navigator)) {
+        log('Service Worker no soportado en este navegador.');
+        return;
+      }
+      try {
+        const reg = await navigator.serviceWorker.register('/sw.js');
+        log('Service Worker registrado en:', reg.scope);
+      } catch (err) {
+        log('Error registrando SW:', err);
       }
     }
 
     async function requestNotificationPermission() {
-      const p = await Notification.requestPermission();
-      log('Permiso notifs:', p);
+      try {
+        const p = await Notification.requestPermission();
+        log('Permiso de notificaciones:', p);
+      } catch (err) {
+        log('Error pidiendo permiso:', err);
+      }
     }
 
     async function subscribePush() {
       const backend = backendInput.value.trim();
-      if (!backend || backend === 'BACKEND_URL') return log('Pon la URL del backend en el campo Backend.');
+      if (!backend) return log('Pon la URL del backend en el campo Backend.');
+
       try {
         const res = await fetch(new URL('/vapidPublicKey', backend).toString());
-        if (!res.ok) throw new Error('No se pudo obtener VAPID key: ' + res.status);
+        if (!res.ok) throw new Error('GET /vapidPublicKey -> ' + res.status);
         const data = await res.json();
-        const vapidPublicKey = data.key || data.publicKey || data;
-        log('Clave VAPID obtenida:', (vapidPublicKey||'').slice(0,20) + '...');
+        const vapidKey = data.key || data.publicKey || data;
+        if (!vapidKey) throw new Error('vapidPublicKey vacío');
 
         if (!navigator.serviceWorker.controller) {
           await registerSW();
@@ -84,56 +94,70 @@
 
         const sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+          applicationServerKey: urlBase64ToUint8Array(vapidKey)
         });
 
-        log('Subscription object:', sub);
+        log('Suscripción obtenida, enviando a backend...');
         const resp = await fetch(new URL('/subscribe', backend).toString(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(sub)
         });
-        log('/subscribe status:', resp.status);
+
+        if (!resp.ok) {
+          const body = await resp.text().catch(()=>'<no body>');
+          throw new Error('/subscribe -> ' + resp.status + ' ' + body);
+        }
+        log('Suscripción enviada correctamente. Status:', resp.status);
       } catch (err) {
-        log('Error al subscribir:', err);
+        log('Error en subscribePush:', err.message || err);
       }
     }
 
     async function simulateEvent() {
       const backend = backendInput.value.trim();
-      if (!backend || backend === 'BACKEND_URL') return log('Pon la URL del backend en el campo Backend.');
+      if (!backend) return log('Pon la URL del backend en el campo Backend.');
       try {
         const resp = await fetch(new URL('/simulate', backend).toString(), { method: 'POST' });
-        const txt = await resp.text();
+        const txt = await resp.text().catch(()=>'<no body>');
         log('/simulate ->', resp.status, txt);
       } catch (err) {
         log('Error simulate:', err);
       }
     }
 
-    let ws;
     function connectWS() {
       const backend = backendInput.value.trim();
-      if (!backend || backend === 'BACKEND_URL') return log('Pon la URL del backend en el campo Backend.');
+      if (!backend) return log('Pon la URL del backend en el campo Backend.');
       try {
         const wsUrl = backend.replace(/^http/, 'ws') + '/ws';
-        ws = new WebSocket(wsUrl);
-        ws.onopen = () => log('WS conectado a', wsUrl);
-        ws.onmessage = (e) => log('WS mensaje:', e.data);
+        const ws = new WebSocket(wsUrl);
+        ws.onopen = () => log('WS conectado', wsUrl);
+        ws.onmessage = e => log('WS mensaje:', e.data);
         ws.onclose = () => log('WS cerrado');
-        ws.onerror = (e) => log('WS error', e);
+        ws.onerror = e => log('WS error', e);
       } catch (err) {
         log('Error conectando WS:', err);
       }
     }
 
+    async function showSwStatus() {
+      if (!('serviceWorker' in navigator)) return log('Service Worker no soportado.');
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) return log('No hay Service Worker registrado.');
+      log('SW scope:', reg.scope, 'active state:', reg.active ? reg.active.state : 'no active');
+    }
+
+    // Attach handlers
     document.getElementById('register-sw').onclick = registerSW;
     document.getElementById('request-notif').onclick = requestNotificationPermission;
     document.getElementById('subscribe').onclick = subscribePush;
     document.getElementById('simulate').onclick = simulateEvent;
     document.getElementById('connect-ws').onclick = connectWS;
+    document.getElementById('open-sw-status').onclick = showSwStatus;
 
-    log('Página lista. Reemplaza BACKEND_URL por la URL pública del backend y pulsa "Suscribirse" para probar.');
+    // Helpful note
+    log('Página lista. Pega la URL pública del backend y luego: Registrar SW → Pedir permiso → Suscribirse → Simular.');
   </script>
 </body>
 </html>
